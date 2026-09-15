@@ -16,7 +16,7 @@
 #include <motores.h>
 #include <odometria.h>
 
-#define MODO   1
+#define MODO   2
 
 /* Modo 2: o alvo da corrida sai da propria calibracao em uso, entao a reta da
  * uns 2 m seja qual for o numero de marcas na roda. Errar a estimativa so faz
