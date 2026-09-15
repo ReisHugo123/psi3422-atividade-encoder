@@ -86,24 +86,24 @@ acrescentar a seguinte, do mesmo jeito que foi feito na atividade 2.</p>
 
 <h2>Objetivo 1 - Um encoder em cada motor</h2>
 
-<h3>O kit n&atilde;o trouxe o que o roteiro supunha</h3>
+<h3>O sensor do kit e o alvo do encoder</h3>
 
-<p>O material de apoio cita tr&ecirc;s sensores poss&iacute;veis, e o kit veio com o <b>HW-201</b>,
-que &eacute; um sensor de obst&aacute;culo infravermelho de tr&ecirc;s pinos, refletivo. N&atilde;o veio o disco
-vazado de 20 aberturas que o roteiro sup&otilde;e.</p>
+<p>O enunciado prev&ecirc; que alguns kits usem o sensor de velocidade LM393 e outros o sensor de
+obst&aacute;culo infravermelho HW-201 para implementar o encoder. O kit usado veio com o
+<b>HW-201</b>, de tr&ecirc;s pinos e refletivo, e foi com ele que o encoder foi montado.</p>
 
-<p>Isso muda a natureza do problema, e vale registrar porque custou tempo de bancada. O
-HW-201 n&atilde;o &eacute; um encoder. Ele acende a sa&iacute;da quando existe qualquer coisa refletindo na
-frente dele, dentro de uma dist&acirc;ncia que um trimpot define. O que transforma esse sensor
-em encoder &eacute; o alvo, e o alvo precisa <b>alternar</b> enquanto a roda gira. Sem disco, o
-alvo passou a ser a pr&oacute;pria roda.</p>
+<p>Esse sensor define como o encoder precisa ser constru&iacute;do. Ele acende a sa&iacute;da quando
+existe alguma coisa refletindo na frente dele, dentro de uma dist&acirc;ncia que um trimpot
+define, ou seja, ele &eacute; a metade sensora do conjunto. A outra metade &eacute; o alvo, que precisa
+<b>alternar</b> enquanto a roda gira, e o alvo escolhido foi a pr&oacute;pria roda.</p>
 
 <p>O cubo da roda &eacute; de alum&iacute;nio anodizado e reflete bem o infravermelho, e fita isolante
-preta n&atilde;o reflete, porque o PVC dela &eacute; carregado de negro de fumo. Foram coladas fitas
-pretas no per&iacute;metro do cubo, alternando com o alum&iacute;nio exposto, e cada sensor foi preso
-com cola quente apontando para essa faixa, sobre uma camada de fita isolante que faz o
-isolamento el&eacute;trico contra a chapa de alum&iacute;nio do chassi. Ficaram <b>tr&ecirc;s fitas na roda
-esquerda e quatro na direita</b>, que foi o que a geometria permitiu.</p>
+preta n&atilde;o reflete, porque o PVC dela &eacute; carregado de negro de fumo. O par alum&iacute;nio e fita
+d&aacute; portanto o contraste de que o sensor precisa, sem acrescentar pe&ccedil;a nenhuma ao conjunto
+girante. Foram fixadas marcas de fita preta no per&iacute;metro do cubo, alternando com o
+alum&iacute;nio exposto, e cada sensor foi montado no chassi apontando para essa faixa, sobre uma
+camada de fita isolante que garante o isolamento el&eacute;trico contra a chapa de alum&iacute;nio.
+Ficaram <b>tr&ecirc;s marcas na roda esquerda e quatro na direita</b>.</p>
 
 <h3>Por que os encoders foram para PTD6 e PTD7</h3>
 
@@ -230,6 +230,23 @@ um pulso, e a manobra terminaria no primeiro pulso que aparecesse, num &acirc;ng
 de onde a fita estava na largada. Aumentar o n&uacute;mero de marcas reduz esse degrau na mesma
 propor&ccedil;&atilde;o, ao custo de refazer a calibra&ccedil;&atilde;o de dist&acirc;ncia.</p>
 
+<h3>O que melhorar no encoder para o experimento final</h3>
+
+<p>A entrega final das aulas 5 e 6 reaproveita esta mesma odometria, s&oacute; que num labirinto,
+onde o carrinho encadeia v&aacute;rios giros e o erro de cada um se soma no rumo. Por isso o ponto
+de maior retorno para investir tempo ali &eacute; a resolu&ccedil;&atilde;o do encoder, e n&atilde;o a malha de
+controle, que j&aacute; est&aacute; acertando o alvo que recebe.</p>
+
+<p>Tr&ecirc;s melhorias, em ordem de impacto. A primeira &eacute; <b>aumentar o n&uacute;mero de marcas</b>,
+com o mesmo n&uacute;mero nas duas rodas: dobrar as marcas corta o degrau de 22 graus pela metade,
+e o &uacute;nico custo &eacute; refazer as duas medidas de calibra&ccedil;&atilde;o. A segunda &eacute; passar para um
+<b>disco vazado com sensor de garfo</b> do tipo LM393, que conta por interrup&ccedil;&atilde;o do feixe em
+vez de reflet&acirc;ncia, o que elimina de uma vez a depend&ecirc;ncia do ajuste do trimpot, do
+contraste do alvo e da dist&acirc;ncia at&eacute; ele, que foram as tr&ecirc;s fontes de incerteza desta
+montagem. A terceira &eacute; <b>trocar o power bank por bateria de 7,4 a 9 V</b>, porque com folga
+de tens&atilde;o o ganho <code>ODO_KP</code> pode sair de zero e a malha passa a corrigir o rumo
+durante a reta, em vez de apenas medir o desvio no fim dela.</p>
+
 <h2>Como ficou cada objetivo</h2>
 
 <table>
@@ -243,10 +260,10 @@ propor&ccedil;&atilde;o, ao custo de refazer a calibra&ccedil;&atilde;o de dist&
 <h2>Coment&aacute;rios sobre a montagem e os testes</h2>
 
 <ul>
-<li><b>O sensor do kit n&atilde;o &eacute; um encoder, e foi preciso construir o alvo.</b> O HW-201 detecta
-qualquer objeto na frente dele. Sem um alvo que alterne, a sa&iacute;da fica presa num n&iacute;vel e a
-contagem nunca sai do zero, o que no come&ccedil;o parecia sensor queimado. O que resolveu foi
-entender que o encoder s&atilde;o duas pe&ccedil;as, o sensor e o alvo, e que o kit s&oacute; trouxe uma.</li>
+<li><b>O encoder s&atilde;o duas pe&ccedil;as, o sensor e o alvo.</b> O HW-201 detecta qualquer objeto
+na frente dele. Enquanto n&atilde;o existe um alvo que alterne, a sa&iacute;da fica presa num n&iacute;vel e a
+contagem n&atilde;o sai do zero, o que no come&ccedil;o parecia sensor com defeito. Entender que faltava
+construir a metade do alvo foi o que destravou a montagem.</li>
 
 <li><b>Aproximar o sensor do alvo piorou, e isso &eacute; contraintuitivo.</b> O emissor e o receptor
 ficam lado a lado apontando paralelos, e a menos de cerca de 2 cm a luz do emissor vaza
