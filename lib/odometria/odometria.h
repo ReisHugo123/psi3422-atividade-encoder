@@ -17,19 +17,19 @@
 /* ==================== cartao de calibracao ==================== */
 
 /* Geometria, conferir com regua antes de acreditar. O alvo nao e disco
- * vazado: sao 8 fitas isolantes pretas no cubo de aluminio da roda, lidas
+ * vazado: sao 3 fitas pretas na roda esquerda e 4 na direita, lidas
  * por refletancia pelo HW-201. Este numero so entra no banner e no valor
  * esperado da fase C, a conta usa os dois numeros medidos abaixo. */
-#define ODO_ABERTURAS_DISCO     8
+#define ODO_ABERTURAS_DISCO     4
 #define ODO_BORDAS_POR_ABERT    2
 #define ODO_PULSOS_POR_VOLTA   (ODO_ABERTURAS_DISCO * ODO_BORDAS_POR_ABERT)
 #define ODO_DIAM_RODA_MM       65
 #define ODO_ENTRE_RODAS_MM     140
 
 /* Os dois numeros medidos. Trocar estes dois E a calibracao. Os valores abaixo
- * sao a estimativa geometrica de partida (pi*65/16 = 12.76 mm por pulso). */
-#define ODO_PULSOS_POR_M       78
-#define ODO_PULSOS_90           9
+ * sao a estimativa geometrica de partida (3 e 4 marcas, media = 29.2 mm por pulso). */
+#define ODO_PULSOS_POR_M       34
+#define ODO_PULSOS_90           4
 
 /* Escorregada depois do freio. Comeca em 0 porque o firmware mede a propria
  * escorregada e imprime; chute aqui esconde o efeito. */
