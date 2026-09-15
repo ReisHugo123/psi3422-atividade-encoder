@@ -49,9 +49,11 @@
 #define ODO_KP                    0
 
 /* Protecoes. O que protege de verdade e ODO_PARADO_MS: roda que para de contar
- * (bateu, atolou, encoder solto) aborta em menos de 1 s. */
+ * (bateu, atolou, encoder solto) aborta sozinha. O valor sobe junto com o
+ * tamanho da marca: com 8 marcas cada pulso vale 12,8 mm, e o intervalo entre
+ * dois pulsos na arrancada passa folgado de 800 ms, o que abortava manobra boa. */
 #define ODO_TIMEOUT_MS        15000
-#define ODO_PARADO_MS           800
+#define ODO_PARADO_MS          1500
 #define ODO_ASSENTA_MS          300
 #define ODO_PASSO_MS              2
 

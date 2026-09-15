@@ -18,7 +18,10 @@
 
 #define MODO   1
 
-#define CAL_PULSOS        160   /* modo 2: pulsos de reta, ~2 m */
+/* Modo 2: o alvo da corrida sai da propria calibracao em uso, entao a reta da
+ * uns 2 m seja qual for o numero de marcas na roda. Errar a estimativa so faz
+ * a primeira corrida sair mais curta ou mais longa, e a segunda ja acerta. */
+#define CAL_PULSOS        (2 * ODO_PULSOS_POR_M)
 #define CAL_PULSOS_GIRO   ODO_PULSOS_90
 #define CAL_GIRO_DIREITA    1
 
