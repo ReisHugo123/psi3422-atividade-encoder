@@ -24,12 +24,12 @@
 #define ODO_BORDAS_POR_ABERT    2
 #define ODO_PULSOS_POR_VOLTA   (ODO_ABERTURAS_DISCO * ODO_BORDAS_POR_ABERT)
 #define ODO_DIAM_RODA_MM       65
-#define ODO_ENTRE_RODAS_MM     140
+#define ODO_ENTRE_RODAS_MM     170
 
 /* Os dois numeros medidos. Trocar estes dois E a calibracao. Os valores abaixo
  * sao a estimativa geometrica de partida (3 e 4 marcas, media = 29.2 mm por pulso). */
 #define ODO_PULSOS_POR_M       34
-#define ODO_PULSOS_90           3
+#define ODO_PULSOS_90           4
 
 /* Escorregada depois do freio. Comeca em 0 porque o firmware mede a propria
  * escorregada e imprime; chute aqui esconde o efeito. */
