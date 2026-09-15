@@ -1,0 +1,330 @@
+# -*- coding: utf-8 -*-
+"""Gera o HTML do relatorio da atividade 4, no mesmo formato das atividades 1 e 2."""
+import io
+import os
+
+RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SAIDA = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'relatorio4.html')
+
+
+def codigo(caminho):
+    t = io.open(os.path.join(RAIZ, caminho), encoding='utf-8').read()
+    return (t.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+             .rstrip())
+
+
+CSS = """
+/* as margens vem do printToPDF: margin aqui anularia todas elas */
+@page { size: A4; }
+html { -webkit-print-color-adjust: exact; }
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 11pt; line-height: 1.55; color: #000; margin: 0;
+  text-align: justify;
+}
+p { margin: 0 0 10pt 0; }
+a { color: #1155cc; text-decoration: underline; word-break: break-all; }
+.materia { font-size: 10.5pt; margin-bottom: 4pt; }
+h1 { font-size: 17pt; font-weight: bold; line-height: 1.3;
+     margin: 0 0 10pt 0; text-align: left; }
+h2 { font-size: 11.5pt; font-weight: bold; margin: 18pt 0 8pt 0;
+     text-align: left; break-after: avoid; }
+h3 { font-size: 11pt; font-weight: bold; margin: 13pt 0 6pt 0;
+     text-align: left; break-after: avoid; }
+.cab { margin-bottom: 3pt; }
+.cab-esp { margin-bottom: 10pt; }
+table { border-collapse: collapse; width: 100%; margin: 4pt 0 2pt 0;
+        font-size: 9.5pt; }
+th, td { border: 1px solid #999; padding: 3.5pt 6pt; text-align: left;
+         vertical-align: top; line-height: 1.35; }
+th { background: #e8e8e8; font-weight: normal; }
+tr { break-inside: avoid; }
+thead { display: table-header-group; }
+.cap { font-size: 9pt; font-style: italic; text-align: center;
+       margin: 2pt 0 12pt 0; }
+ul { margin: 0 0 10pt 0; padding-left: 18pt; }
+li { margin-bottom: 9pt; }
+li::marker { content: '\\2013\\00a0'; }
+pre { font-family: 'Consolas', 'Courier New', monospace; font-size: 6.9pt;
+      line-height: 1.32; white-space: pre-wrap; text-align: left;
+      margin: 6pt 0 0 0; }
+.num { font-variant-numeric: tabular-nums; }
+"""
+
+HTML = u"""<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<title>Atividade encoder Hugo e Wender</title>
+<style>%(css)s</style></head><body>
+
+<div class="materia">PSI3422 - Laborat&oacute;rio de Sistemas Eletr&ocirc;nicos</div>
+<h1>Encoders nas Rodas do Carrinho: Estimativa de Dist&acirc;ncia e Curva de 90 Graus</h1>
+<div class="cab">Nomes: Hugo dos Reis e Wender Souza</div>
+<div class="cab-esp">N&uacute;meros USP: 12544308 e 13783054</div>
+<div class="cab">Reposit&oacute;rio do projeto</div>
+<div class="cab-esp"><a href="https://github.com/ReisHugo123/psi3422-atividade-encoder">https://github.com/ReisHugo123/psi3422-atividade-encoder</a></div>
+
+<h2>O que foi feito</h2>
+
+<p>Um encoder &oacute;ptico foi acoplado a cada roda do carrinho 2WD da atividade 1, e a
+FRDM-KL25Z passou a comandar movimento em pulsos de encoder em vez de tempo. O
+enunciado pedia tr&ecirc;s coisas: acoplar um encoder em cada motor, calibrar o encoder
+para estimar a dist&acirc;ncia percorrida, e calibrar para controlar o movimento fazendo
+uma curva de 90 graus para a direita e outra para a esquerda.</p>
+
+<p>O resultado &eacute; o seguinte: o carrinho recebe um comando em mil&iacute;metros ou em graus, e
+a manobra termina quando as rodas giraram o que foi pedido, e n&atilde;o depois de um tempo
+cronometrado. Na atividade 1 o giro de 180 graus era um <code>k_msleep</code> de 2500 ms
+calibrado no ch&atilde;o do laborat&oacute;rio, e ele mudava com o piso, com o peso em cima do
+carrinho e com a carga do power bank. Essa depend&ecirc;ncia desaparece com o encoder,
+porque o crit&eacute;rio de parada passa a ser dist&acirc;ncia percorrida e n&atilde;o dura&ccedil;&atilde;o.</p>
+
+<p>O c&oacute;digo ficou em tr&ecirc;s bibliotecas e um main. A <code>lib/motores</code> veio da
+atividade 1, com IN3 e IN4 mudados de PTB2 e PTB3 para PTE0 e PTE1, que s&atilde;o os pinos
+que a placa da atividade 3 roteou. A <code>lib/encoder</code> conta bordas dos dois
+sensores por interrup&ccedil;&atilde;o. A <code>lib/odometria</code> traduz mil&iacute;metros e graus em
+pulsos e fecha a malha de parada. Um <code>#define MODO</code> no topo do main escolhe
+entre sete programas, tr&ecirc;s de diagn&oacute;stico e calibra&ccedil;&atilde;o e quatro de demonstra&ccedil;&atilde;o. Essa
+divis&atilde;o serviu para subir o sistema por partes, validando cada camada antes de
+acrescentar a seguinte, do mesmo jeito que foi feito na atividade 2.</p>
+
+<table>
+<thead><tr><th>Sinal</th><th>Pino</th><th>Fun&ccedil;&atilde;o</th></tr></thead><tbody>
+<tr><td>OUT do encoder esquerdo</td><td>PTD6</td><td>entrada com interrup&ccedil;&atilde;o nas duas bordas</td></tr>
+<tr><td>OUT do encoder direito</td><td>PTD7</td><td>entrada com interrup&ccedil;&atilde;o nas duas bordas</td></tr>
+<tr><td>VCC dos dois sensores</td><td>P3V3</td><td>3,3 V, m&aacute;ximo do pino do KL25Z</td></tr>
+<tr><td>GND dos dois sensores</td><td>GND</td><td>terra comum</td></tr>
+<tr><td>ENA</td><td>PTD2</td><td>PWM da velocidade do motor esquerdo</td></tr>
+<tr><td>IN1 e IN2</td><td>PTD0 e PTD5</td><td>sentido do motor esquerdo</td></tr>
+<tr><td>ENB</td><td>PTD3</td><td>PWM da velocidade do motor direito</td></tr>
+<tr><td>IN3 e IN4</td><td>PTE0 e PTE1</td><td>sentido do motor direito</td></tr>
+<tr><td>GND do L298N</td><td>GND</td><td>sem refer&ecirc;ncia comum a ponte H ignora os comandos</td></tr>
+</tbody></table>
+<div class="cap">Tabela 1 - Liga&ccedil;&otilde;es entre a FRDM-KL25Z, os dois encoders e a ponte H.</div>
+
+<h2>Objetivo 1 - Um encoder em cada motor</h2>
+
+<h3>O kit n&atilde;o trouxe o que o roteiro supunha</h3>
+
+<p>O material de apoio cita tr&ecirc;s sensores poss&iacute;veis, e o kit veio com o <b>HW-201</b>,
+que &eacute; um sensor de obst&aacute;culo infravermelho de tr&ecirc;s pinos, refletivo. N&atilde;o veio o disco
+vazado de 20 aberturas que o roteiro sup&otilde;e.</p>
+
+<p>Isso muda a natureza do problema, e vale registrar porque custou tempo de bancada. O
+HW-201 n&atilde;o &eacute; um encoder. Ele acende a sa&iacute;da quando existe qualquer coisa refletindo na
+frente dele, dentro de uma dist&acirc;ncia que um trimpot define. O que transforma esse sensor
+em encoder &eacute; o alvo, e o alvo precisa <b>alternar</b> enquanto a roda gira. Sem disco, o
+alvo passou a ser a pr&oacute;pria roda.</p>
+
+<p>O cubo da roda &eacute; de alum&iacute;nio anodizado e reflete bem o infravermelho, e fita isolante
+preta n&atilde;o reflete, porque o PVC dela &eacute; carregado de negro de fumo. Foram coladas fitas
+pretas no per&iacute;metro do cubo, alternando com o alum&iacute;nio exposto, e cada sensor foi preso
+com cola quente apontando para essa faixa, sobre uma camada de fita isolante que faz o
+isolamento el&eacute;trico contra a chapa de alum&iacute;nio do chassi. Ficaram <b>tr&ecirc;s fitas na roda
+esquerda e quatro na direita</b>, que foi o que a geometria permitiu.</p>
+
+<h3>Por que os encoders foram para PTD6 e PTD7</h3>
+
+<p>A escolha n&atilde;o foi por conveni&ecirc;ncia de fia&ccedil;&atilde;o, foi por restri&ccedil;&atilde;o do sil&iacute;cio. No KL25Z
+apenas <b>PORTA e PORTD</b> t&ecirc;m interrup&ccedil;&atilde;o de pino, e os demais portos simplesmente n&atilde;o
+possuem vetor. Como contar borda por varredura desperdi&ccedil;a tempo de processador e ainda
+perde pulso quando a roda acelera, os dois encoders tinham de cair num desses dois
+portos. PTD6 e PTD7 estavam livres depois de os motores ocuparem PTD0, PTD2, PTD3 e
+PTD5, e s&atilde;o vizinhos no mesmo header, o que facilita a montagem.</p>
+
+<h3>Uma interrup&ccedil;&atilde;o s&oacute; para as duas rodas</h3>
+
+<p>O PORTD tem um vetor &uacute;nico para os 32 pinos, ent&atilde;o a mesma rotina atende as duas rodas
+e o registrador <code>PORTD_ISFR</code> diz qual pino pediu. Esse registrador &eacute;
+write-1-to-clear, e a rotina l&ecirc; tudo e devolve tudo de volta, o que limpa exatamente as
+flags ativas. Limpar tamb&eacute;m as de outros pinos evita que uma flag presa mantenha o pedido
+de interrup&ccedil;&atilde;o ativo para sempre, que &eacute; uma falha que trava a placa inteira.</p>
+
+<p>O registro da rotina foi feito com <code>irq_connect_dynamic</code> e n&atilde;o com
+<code>IRQ_CONNECT</code>. O motivo &eacute; que o driver de GPIO do Zephyr j&aacute; registra o vetor 31
+estaticamente, porque o LED azul de bordo fica em PTD1 e isso liga o n&oacute; do
+<code>gpiod</code>. Dois registros no mesmo IRQ quebram a gera&ccedil;&atilde;o da tabela de
+interrup&ccedil;&otilde;es e o build falha. Antes de adotar o caminho din&acirc;mico foi conferido no bin&aacute;rio
+que a tabela <code>_sw_isr_table</code> est&aacute; em RAM e portanto &eacute; grav&aacute;vel em tempo de
+execu&ccedil;&atilde;o.</p>
+
+<h3>Contagem nas duas bordas e filtro de ru&iacute;do</h3>
+
+<p>O campo IRQC do pino foi posto em 0xB, que interrompe na subida e na descida. Contar as
+duas bordas dobra a resolu&ccedil;&atilde;o sem custo nenhum de hardware, e torna a polaridade do
+sensor irrelevante, o que foi &uacute;til justamente porque o HW-201 responde ao contr&aacute;rio do
+que o LM393 responderia.</p>
+
+<p>O KL25Z <b>n&atilde;o tem filtro digital de pino</b>, ao contr&aacute;rio de outras fam&iacute;lias que
+oferecem um registrador de filtro por porto. Como o comparador do sensor oscila quando a
+borda do alvo passa devagar, o filtro foi feito em software: uma borda que chega menos de
+300 microssegundos depois da anterior &eacute; descartada e contada &agrave; parte, num contador de
+<code>glitch</code>. O valor de 300 microssegundos fica bem abaixo do menor intervalo
+leg&iacute;timo entre bordas na rota&ccedil;&atilde;o m&aacute;xima, ent&atilde;o ele n&atilde;o perde pulso bom. Os pinos ainda
+levam pull-up interno, para que um fio de encoder que se solte fique em n&iacute;vel definido em
+vez de gerar contagem fantasma.</p>
+
+<h2>Objetivo 2 - Calibrar o encoder para estimar a dist&acirc;ncia percorrida</h2>
+
+<h3>O m&eacute;todo</h3>
+
+<p>Os dois n&uacute;meros que traduzem pulso em mundo real se medem, n&atilde;o se calculam. Calcular a
+partir do di&acirc;metro nominal da roda ignora deforma&ccedil;&atilde;o do pneu, escorregamento e o pr&oacute;prio
+erro de leitura do sensor, e o erro disso aparece inteiro na dist&acirc;ncia estimada.</p>
+
+<p>O procedimento foi comandar um n&uacute;mero conhecido de pulsos, medir a dist&acirc;ncia percorrida
+no ch&atilde;o e dividir. O alvo da corrida de calibra&ccedil;&atilde;o foi amarrado &agrave; pr&oacute;pria calibra&ccedil;&atilde;o em
+uso, de modo que a reta mira sempre cerca de 2 m independentemente de quantas marcas a
+roda tenha. Se a estimativa estiver errada, a primeira corrida sai mais curta ou mais
+longa, mede-se o valor real, e a segunda j&aacute; cai perto de 2 m. Com isso a contagem de
+marcas na roda deixou de ser um dado de entrada do problema.</p>
+
+<h3>Rodas com n&uacute;meros diferentes de marcas</h3>
+
+<p>Ter tr&ecirc;s fitas de um lado e quatro do outro parecia um problema, e n&atilde;o &eacute;. O crit&eacute;rio de
+parada da malha &eacute; a <b>m&eacute;dia das duas contagens</b>, e nas duas manobras que a atividade
+pede, reta e giro no pr&oacute;prio eixo, as duas rodas percorrem a mesma dist&acirc;ncia. Ent&atilde;o a
+escala efetiva &eacute; a m&eacute;dia das duas escalas, e &eacute; exatamente essa m&eacute;dia que a corrida de
+calibra&ccedil;&atilde;o mede.</p>
+
+<p>A condi&ccedil;&atilde;o para isso valer &eacute; que o ganho de corre&ccedil;&atilde;o de rumo <code>ODO_KP</code> fique em
+zero, porque ele &eacute; o &uacute;nico ponto do c&oacute;digo que compara uma roda com a outra. Ele j&aacute; estava
+em zero por outro motivo: corrigir rumo &eacute; sempre tirar velocidade de uma roda, e com
+power bank de 5 V o motor j&aacute; trabalha em cerca de 3,2 V no duty m&aacute;ximo, sem folga para
+baixar mais. H&aacute; at&eacute; um ganho colateral, porque a soma conta a borda de qualquer uma das
+duas rodas, e o sistema enxerga 14 bordas por volta em vez de 6 ou 8.</p>
+
+<h3>As medidas</h3>
+
+<table>
+<thead><tr><th>Corrida</th><th>Comandado</th><th>Medido</th><th>Resultado</th></tr></thead><tbody>
+<tr><td>1</td><td>68 pulsos</td><td>1780 mm</td><td>26,2 mm por pulso</td></tr>
+<tr><td>2</td><td>1000 mm</td><td>1212 mm</td><td>31,9 mm por pulso</td></tr>
+<tr><td>3</td><td>1000 mm</td><td>repetiu e voltou &agrave; marca de partida</td><td>32,3 mm por pulso</td></tr>
+</tbody></table>
+<div class="cap">Tabela 2 - Corridas de calibra&ccedil;&atilde;o da reta, no piso do laborat&oacute;rio com alimenta&ccedil;&atilde;o por power bank.</div>
+
+<p>As duas primeiras corridas discordaram em 22 por cento, o que mostrou que uma medida
+isolada n&atilde;o basta. O crit&eacute;rio que fechou a calibra&ccedil;&atilde;o foi a <b>repetibilidade</b>: com
+<code>ODO_PULSOS_POR_M</code> em 31, o carrinho andou 1000 mm, voltou de r&eacute; e parou sobre a
+marca de partida, e repetiu isso nas corridas seguintes. Voltar &agrave; marca &eacute; um teste melhor
+do que medir com trena, porque n&atilde;o depende de r&eacute;gua nenhuma e ainda verifica os dois
+sentidos de rota&ccedil;&atilde;o.</p>
+
+<h2>Objetivo 3 - Calibrar o encoder para controlar o movimento</h2>
+
+<p>O giro de 90 graus &eacute; feito no pr&oacute;prio eixo, com as rodas em sentidos opostos. O comando
+converte graus em pulsos por uma constante <code>ODO_PULSOS_90</code>, que tamb&eacute;m se mede
+em vez de calcular, pelo mesmo motivo da dist&acirc;ncia e com um agravante: no giro o pneu
+escorrega lateralmente, e o quanto ele escorrega depende do piso e do peso.</p>
+
+<p>A primeira estimativa partiu de uma dist&acirc;ncia entre rodas de 140 mm, herdada do kit
+padr&atilde;o, e o giro saiu em cerca de 65 graus. Desse resultado foi poss&iacute;vel calcular a
+dist&acirc;ncia entre rodas real ao contr&aacute;rio, chegando a cerca de <b>170 mm</b>, que depois
+explicou o erro. Com a constante no degrau seguinte o giro ficou pr&oacute;ximo de 90 graus, e
+foi esse o valor adotado.</p>
+
+<table>
+<thead><tr><th><code>ODO_PULSOS_90</code></th><th>Percurso de cada roda</th><th>&Acirc;ngulo obtido</th></tr></thead><tbody>
+<tr><td>3</td><td>96,8 mm</td><td>cerca de 65 graus</td></tr>
+<tr><td><b>4 (adotado)</b></td><td><b>129,0 mm</b></td><td><b>pr&oacute;ximo de 90 graus</b></td></tr>
+<tr><td>5</td><td>161,3 mm</td><td>cerca de 109 graus</td></tr>
+</tbody></table>
+<div class="cap">Tabela 3 - Valores test&aacute;veis em volta de 90 graus, e o degrau de resolu&ccedil;&atilde;o entre eles.</div>
+
+<h3>A resolu&ccedil;&atilde;o do encoder &eacute; o que limita o &acirc;ngulo, e n&atilde;o o controle</h3>
+
+<p>A Tabela 3 mostra o achado mais interessante da atividade. Com 14 bordas por volta da
+roda e dist&acirc;ncia entre rodas de 170 mm, <b>o menor incremento de &acirc;ngulo que d&aacute; para
+comandar &eacute; de cerca de 22 graus</b>, e n&atilde;o existe valor intermedi&aacute;rio entre 65 e 90. Isso
+n&atilde;o &eacute; falha da malha de controle: o relat&oacute;rio que o firmware imprime ao fim de cada
+manobra mostrou <code>erro final 0 pulsos</code>, ou seja, o controle parou exatamente no
+alvo que recebeu.</p>
+
+<p>A li&ccedil;&atilde;o &eacute; que <b>o alvo do encoder precisa ser mais fino que o movimento que se quer
+controlar</b>. Com uma &uacute;nica fita por roda, como come&ccedil;ou a montagem, cada pulso valia mais
+de 100 mm de percurso, enquanto o giro de 90 graus inteiro exige 129 mm. O giro caberia em
+um pulso, e a manobra terminaria no primeiro pulso que aparecesse, num &acirc;ngulo que depende
+de onde a fita estava na largada. Aumentar o n&uacute;mero de marcas reduz esse degrau na mesma
+propor&ccedil;&atilde;o, ao custo de refazer a calibra&ccedil;&atilde;o de dist&acirc;ncia.</p>
+
+<h2>Como ficou cada objetivo</h2>
+
+<table>
+<thead><tr><th>Objetivo do enunciado</th><th>Como ficou</th></tr></thead><tbody>
+<tr><td>1. Acoplar um encoder em cada motor</td><td>Um HW-201 por roda, lendo fitas pretas no cubo de alum&iacute;nio por refletância, contando as duas bordas por interrup&ccedil;&atilde;o do PORTD com filtro de 300 &micro;s em software</td></tr>
+<tr><td>2. Calibrar o encoder para estimar a dist&acirc;ncia percorrida</td><td>31 pulsos por metro medidos em tr&ecirc;s corridas. O carrinho anda 1000 mm, volta de r&eacute; e para sobre a marca de partida, repetidamente</td></tr>
+<tr><td>3. Calibrar para controlar o movimento, com curva de 90 graus para cada lado</td><td>Giro no pr&oacute;prio eixo pr&oacute;ximo de 90 graus para a direita e para a esquerda, voltando ao rumo original, com o degrau de resolu&ccedil;&atilde;o de 22 graus documentado</td></tr>
+</tbody></table>
+<div class="cap">Tabela 4 - Estado final de cada objetivo do enunciado.</div>
+
+<h2>Coment&aacute;rios sobre a montagem e os testes</h2>
+
+<ul>
+<li><b>O sensor do kit n&atilde;o &eacute; um encoder, e foi preciso construir o alvo.</b> O HW-201 detecta
+qualquer objeto na frente dele. Sem um alvo que alterne, a sa&iacute;da fica presa num n&iacute;vel e a
+contagem nunca sai do zero, o que no come&ccedil;o parecia sensor queimado. O que resolveu foi
+entender que o encoder s&atilde;o duas pe&ccedil;as, o sensor e o alvo, e que o kit s&oacute; trouxe uma.</li>
+
+<li><b>Aproximar o sensor do alvo piorou, e isso &eacute; contraintuitivo.</b> O emissor e o receptor
+ficam lado a lado apontando paralelos, e a menos de cerca de 2 cm a luz do emissor vaza
+direto para o receptor pela lateral e satura a leitura. Com o sensor a 5 mm do cubo, girar
+o trimpot s&oacute; alternava entre detectar sempre e nunca detectar, porque o sinal medido n&atilde;o
+vinha mais do alvo. Afastar resolveu.</li>
+
+<li><b>Caneta preta permanente n&atilde;o serve como marca.</b> Chegou a ser considerada como
+alternativa mais r&aacute;pida que fita, e n&atilde;o funcionaria: a maioria das tintas pretas &eacute;
+transparente ao infravermelho de 940 nm, que &eacute; o comprimento de onda desse sensor. A marca
+ficaria preta ao olho e invis&iacute;vel para o sensor. A fita isolante funciona porque bloqueia
+de fato o infravermelho.</li>
+
+<li><b>Rodas com n&uacute;meros diferentes de marcas n&atilde;o quebram a odometria.</b> Foi a d&uacute;vida que
+mais atrasou a montagem, e a resposta veio de ler o crit&eacute;rio de parada do pr&oacute;prio c&oacute;digo.
+Como ele usa a m&eacute;dia das duas contagens e as duas rodas percorrem a mesma dist&acirc;ncia nas
+duas manobras, a diferen&ccedil;a &eacute; absorvida pela calibra&ccedil;&atilde;o. A contagem bruta das duas rodas,
+por&eacute;m, deixa de ser compar&aacute;vel entre si, e o desvio que o firmware imprime passa a precisar
+de corre&ccedil;&atilde;o pela raz&atilde;o 3 para 4 antes de ser interpretado como assimetria de motor.</li>
+
+<li><b>O sensor esquerdo gerou ru&iacute;do e o direito n&atilde;o.</b> O contador de bordas descartadas
+mostrou <code>glitches esq 3 dir 0</code> num giro em que a roda esquerda contou apenas 3
+pulsos v&aacute;lidos. Isso indica o comparador daquele m&oacute;dulo oscilando no limiar, e parte do
+ru&iacute;do mais lento que a janela de 300 microssegundos pode estar passando como pulso bom. Foi
+a maior fonte de incerteza da calibra&ccedil;&atilde;o. O ajuste correto &eacute; procurar o meio da faixa em
+que o trimpot alterna limpo, e acrescentar um capacitor de 100 nF entre VCC e GND no
+pr&oacute;prio m&oacute;dulo.</li>
+
+<li><b>Uma prote&ccedil;&atilde;o do firmware precisou ser afrouxada por causa da marca grossa.</b> A malha
+aborta a manobra quando uma roda passa muito tempo sem gerar pulso, o que protege contra
+encoder solto e roda atolada. Com 3 marcas por roda cada pulso vale mais de 30 mm, e o
+intervalo entre dois pulsos na arrancada passava do limite original de 800 ms, abortando
+manobra boa. O limite foi para 1500 ms.</li>
+
+<li><b>A alimenta&ccedil;&atilde;o manteve o arranjo das atividades anteriores.</b> Power bank de 5 V, com
+o jumper 5VEN do L298N removido e os 5 V entrando nos dois parafusos, porque com apenas
+5 V na entrada o regulador de bordo do m&oacute;dulo n&atilde;o fecha os 5 V da l&oacute;gica. Nos motores
+chegam cerca de 3,2 V, ent&atilde;o tudo roda perto de 100 por cento de duty, e &eacute; por isso que
+n&atilde;o h&aacute; folga para corre&ccedil;&atilde;o din&acirc;mica de rumo.</li>
+</ul>
+
+<h2>C&oacute;digo - lib/encoder/encoder.c</h2>
+
+<p>Listagem da biblioteca de contagem, que &eacute; o n&uacute;cleo do objetivo 1. As bibliotecas de
+odometria e de motores e os sete modos do main est&atilde;o no reposit&oacute;rio.</p>
+
+<pre>%(encoder)s</pre>
+
+<h2>Uso de ferramentas de IA</h2>
+
+<p>Conforme a disciplina permite mediante declara&ccedil;&atilde;o, foi usado assistente de IA no apoio &agrave;
+leitura do manual de refer&ecirc;ncia do KL25Z na parte de interrup&ccedil;&atilde;o de porto, na confer&ecirc;ncia
+do mapa de pinos contra a tabela oficial da placa, na reda&ccedil;&atilde;o inicial das bibliotecas de
+encoder e de odometria, e na an&aacute;lise dos n&uacute;meros medidos em bancada. A decis&atilde;o de usar a
+pr&oacute;pria roda como alvo do encoder, as medidas de calibra&ccedil;&atilde;o e a valida&ccedil;&atilde;o de cada modo
+foram feitas no laborat&oacute;rio pelos autores. N&atilde;o foi consultada solu&ccedil;&atilde;o de ano anterior nem
+usada biblioteca de terceiros para o encoder.</p>
+
+</body></html>
+"""
+
+io.open(SAIDA, 'w', encoding='utf-8').write(
+    HTML % {'css': CSS, 'encoder': codigo(r'lib\encoder\encoder.c')})
+print('gerado:', SAIDA)

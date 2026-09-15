@@ -2,8 +2,9 @@
  * encoder.c - contagem de bordas de PTD6 e PTD7 pela interrupcao do PORTD.
  *
  * Uma ISR atende as duas rodas: o PORTD tem um vetor so e o ISFR diz qual pino
- * interrompeu. As duas bordas de cada abertura sao contadas, o que da 40 pulsos
- * por volta com o disco de 20 do kit.
+ * interrompeu. As duas bordas de cada marca sao contadas. O alvo montado sao
+ * fitas pretas na roda lidas por refletancia, 3 na esquerda e 4 na direita, o
+ * que da 6 e 8 pulsos por volta.
  *
  * O porque de cada escolha (IRQ dinamico, janela de bloqueio, pull-up) esta em
  * docs/decisoes.md, secoes 1 a 5.
