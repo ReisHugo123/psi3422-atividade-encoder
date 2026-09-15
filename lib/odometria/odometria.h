@@ -29,7 +29,7 @@
 /* Os dois numeros medidos. Trocar estes dois E a calibracao. Os valores abaixo
  * sao a estimativa geometrica de partida (3 e 4 marcas, media = 29.2 mm por pulso). */
 #define ODO_PULSOS_POR_M       34
-#define ODO_PULSOS_90           4
+#define ODO_PULSOS_90           3
 
 /* Escorregada depois do freio. Comeca em 0 porque o firmware mede a propria
  * escorregada e imprime; chute aqui esconde o efeito. */
