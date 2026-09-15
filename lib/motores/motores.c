@@ -3,8 +3,13 @@
  *
  *   Motor A / roda esquerda          Motor B / roda direita
  *     ENA = PTD2 (D11) TPM0_CH2        ENB = PTD3 (D12) TPM0_CH3
- *     IN1 = PTD0 (D10) GPIO            IN3 = PTB2 (A2)  GPIO
- *     IN2 = PTD5 (D9)  GPIO            IN4 = PTB3 (A3)  GPIO
+ *     IN1 = PTD0 (D10) GPIO            IN3 = PTE0 (J2-20) GPIO
+ *     IN2 = PTD5 (D9)  GPIO            IN4 = PTE1 (J2-18) GPIO
+ *
+ * IN3 e IN4 estao em PORTE porque e onde a placa da atividade 3 os roteou. Na
+ * fiacao de jumper da atividade 1 eles eram PTB2 e PTB3; usar o pino da placa
+ * nos dois casos deixa um firmware so, e com jumper e so mudar dois fios de
+ * lugar. O banner do boot imprime o que esta compilado.
  *
  * PTD0 a PTD5 sao os canais 0 a 5 do TPM0 na funcao ALT4. Como os dois EN ficam
  * no mesmo TPM, eles compartilham a frequencia (o TPM tem um contador e um MOD
@@ -23,8 +28,8 @@
 
 #define IN1_PIN       0u      /* PTD0 */
 #define IN2_PIN       5u      /* PTD5 */
-#define IN3_PIN       2u      /* PTB2 */
-#define IN4_PIN       3u      /* PTB3 */
+#define IN3_PIN       0u      /* PTE0, J2-20 */
+#define IN4_PIN       1u      /* PTE1, J2-18 */
 
 #define TPM_SRC_FLL   1u      /* TPMSRC = 1 -> MCGFLLCLK (48 MHz) */
 #define PS_16         4u
@@ -52,7 +57,7 @@ static void pino_saida(PORT_Type *port, GPIO_Type *gpio, uint8_t pin)
 /* (1,0) e (0,1) sao os dois sentidos, (0,0) solta o motor, (1,1) freia. */
 static void motor_pinos(motor_t motor, uint8_t a, uint8_t b)
 {
-	GPIO_Type *gpio = (motor == MOTOR_ESQ) ? GPIOD : GPIOB;
+	GPIO_Type *gpio = (motor == MOTOR_ESQ) ? GPIOD : GPIOE;
 	uint32_t   m_a  = (motor == MOTOR_ESQ) ? (1u << IN1_PIN) : (1u << IN3_PIN);
 	uint32_t   m_b  = (motor == MOTOR_ESQ) ? (1u << IN2_PIN) : (1u << IN4_PIN);
 
@@ -90,15 +95,15 @@ static void motor_duty(motor_t motor, uint32_t duty)
 void motores_init(void)
 {
 	/* clock dos perifericos primeiro: sem isso as escritas se perdem */
-	SIM->SCGC5 |= SIM_SCGC5_PORTB_MASK | SIM_SCGC5_PORTD_MASK;
+	SIM->SCGC5 |= SIM_SCGC5_PORTD_MASK | SIM_SCGC5_PORTE_MASK;
 	SIM->SCGC6 |= SIM_SCGC6_TPM0_MASK;
 	SIM->SOPT2  = (SIM->SOPT2 & ~SIM_SOPT2_TPMSRC_MASK) | SIM_SOPT2_TPMSRC(TPM_SRC_FLL);
 
 	/* sentido: quatro saidas digitais, todas em 0 (motores soltos) */
 	pino_saida(PORTD, GPIOD, IN1_PIN);
 	pino_saida(PORTD, GPIOD, IN2_PIN);
-	pino_saida(PORTB, GPIOB, IN3_PIN);
-	pino_saida(PORTB, GPIOB, IN4_PIN);
+	pino_saida(PORTE, GPIOE, IN3_PIN);
+	pino_saida(PORTE, GPIOE, IN4_PIN);
 
 	/* velocidade: PTD2 e PTD3 saem do GPIO e vao para o TPM0 (ALT4) */
 	PORTD->PCR[EN_ESQ_PIN] = PORT_PCR_MUX(4);

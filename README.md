@@ -53,8 +53,8 @@ Motores, sem nenhuma mudança em relação à atividade 1:
 | IN1 | PTD0 | D10 |
 | IN2 | PTD5 | D9 |
 | ENB | PTD3 | D12 |
-| IN3 | PTB2 | A2 |
-| IN4 | PTB3 | A3 |
+| IN3 | PTE0 | J2-20 |
+| IN4 | PTE1 | J2-18 |
 
 Três coisas que travam o projeto se passarem batido, as mesmas da atividade 1:
 
@@ -65,19 +65,16 @@ Três coisas que travam o projeto se passarem batido, as mesmas da atividade 1:
 - **Encoder alimentado com 3,3 V, não 5 V.** A saída sai no nível da
   alimentação, e o pino do KL25Z não tolera 5 V.
 
-### Se a PCB da aula 3 já estiver fabricada
+### Pinos de IN3 e IN4: são os da placa
 
-Nela os encoders já vêm roteados para PTD6 e PTD7 (conectores `J6` e `J7`), mas
-**IN3 e IN4 mudaram** para PTE0 (J2-20) e PTE1 (J2-18) no reposicionamento que
-fechou o roteamento. São quatro edições em `lib/motores/motores.c`:
+`IN3` e `IN4` estão em **PTE0 (J2-20)** e **PTE1 (J2-18)**, que é onde a placa de
+circuito impresso da atividade 3 os roteou. Na fiação de jumper da atividade 1
+eles eram PTB2 e PTB3.
 
-1. `SIM->SCGC5 |= ... | SIM_SCGC5_PORTE_MASK;`
-2. `#define IN3_PIN 0u` e `#define IN4_PIN 1u`
-3. `pino_saida(PORTE, GPIOE, IN3_PIN);` e `pino_saida(PORTE, GPIOE, IN4_PIN);`
-4. em `motor_pinos`, `GPIOB` → `GPIOE`
-
-O banner que o firmware imprime no boot mostra quais pinos estão compilados.
-Confira antes de sair procurando defeito na fiação.
+Adotar o pino da placa nos dois casos deixa **um firmware só**: se você voltar
+para jumper, é mudar dois fios de lugar, não recompilar. O banner que o firmware
+imprime no boot mostra quais pinos estão compilados, então confira ali antes de
+sair procurando defeito na fiação.
 
 ## Compilar e gravar
 
