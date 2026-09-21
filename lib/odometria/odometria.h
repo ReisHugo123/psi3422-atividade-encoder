@@ -17,19 +17,33 @@
 /* ==================== cartao de calibracao ==================== */
 
 /* Geometria, conferir com regua antes de acreditar. O alvo nao e disco
- * vazado: sao 3 fitas pretas na roda esquerda e 4 na direita, lidas
+ * vazado: sao 8 marcas impressas em cada roda, iguais nas duas, lidas
  * por refletancia pelo HW-201. Este numero so entra no banner e no valor
  * esperado da fase C, a conta usa os dois numeros medidos abaixo. */
-#define ODO_ABERTURAS_DISCO     4
+#define ODO_ABERTURAS_DISCO     8
 #define ODO_BORDAS_POR_ABERT    2
 #define ODO_PULSOS_POR_VOLTA   (ODO_ABERTURAS_DISCO * ODO_BORDAS_POR_ABERT)
-#define ODO_DIAM_RODA_MM       65
+#define ODO_DIAM_RODA_MM       72
 #define ODO_ENTRE_RODAS_MM     170
 
-/* Os dois numeros medidos. Trocar estes dois E a calibracao. Os valores abaixo
- * sao a estimativa geometrica de partida (3 e 4 marcas, media = 29.2 mm por pulso). */
-#define ODO_PULSOS_POR_M       34
-#define ODO_PULSOS_90           4
+/* Os dois numeros medidos. Trocar estes dois E a calibracao.
+ *
+ * ATENCAO: os valores abaixo sao ESTIMATIVA para o alvo novo, 8 marcas
+ * impressas por roda e o mesmo numero nas duas. NAO valem antes de medir no
+ * MODO 2 e no MODO 3.
+ *
+ * A estimativa sai da calibracao anterior: 62 bordas por metro com 14 bordas
+ * por volta dao 226 mm de circunferencia de pneu, e o MODO 5 denunciou 170 mm
+ * de entre-rodas. Com 32 bordas somadas por volta o passo de decisao cai de
+ * 16,1 para 7,1 mm e o degrau do giro de 22 para 9,5 graus.
+ *
+ * LICAO da calibracao anterior, que ficou com POR_M = 34: as duas medidas dela
+ * discordavam 36 por cento (68 pulsos deram 1780 mm e 34 pulsos deram 1212 mm)
+ * e isso passou batido. Voltar para a marca de partida na re NAO detecta escala
+ * errada, porque o erro e simetrico na ida e na volta. O unico teste que
+ * detecta e comandar 1000 mm e medir se andou 1000 mm. */
+#define ODO_PULSOS_POR_M       71
+#define ODO_PULSOS_90           9
 
 /* Escorregada depois do freio. Comeca em 0 porque o firmware mede a propria
  * escorregada e imprime; chute aqui esconde o efeito. */
