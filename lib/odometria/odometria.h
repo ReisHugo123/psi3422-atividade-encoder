@@ -44,7 +44,7 @@
  * e isso passou batido. Voltar para a marca de partida na re NAO detecta escala
  * errada, porque o erro e simetrico na ida e na volta. O unico teste que
  * detecta e comandar 1000 mm e medir se andou 1000 mm. */
-#define ODO_PULSOS_POR_M       73
+#define ODO_PULSOS_POR_M       65
 #define ODO_PULSOS_90           8
 
 /* Escorregada depois do freio. Comeca em 0 porque o firmware mede a propria
