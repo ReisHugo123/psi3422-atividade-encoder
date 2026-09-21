@@ -15,8 +15,12 @@
 #include <zephyr/kernel.h>
 #include <zephyr/irq.h>
 
-#define ENC_ESQ_PIN     6u
-#define ENC_DIR_PIN     7u
+/* Medido no MODO 1 fase B: acionando o motor esquerdo quem contava era o
+ * contador da direita, e vice-versa. O encoder da roda ESQUERDA esta no PTD7 e
+ * o da DIREITA no PTD6, e nao o contrario. Corrigido aqui em vez de trocar os
+ * dois jumpers, que ja estao colados no chassi. */
+#define ENC_ESQ_PIN     7u
+#define ENC_DIR_PIN     6u
 #define PORTD_IRQ      31u
 
 #define IRQC_DUAS_BORDAS  0xBu   /* 0x9 subida, 0xA descida, 0xB as duas */

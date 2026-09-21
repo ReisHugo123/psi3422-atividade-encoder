@@ -65,7 +65,7 @@ static void led_cor(enum cor c)
 static void cartao_de_calibracao(void)
 {
 	printk("\n=== PSI3422 atividade 4 - encoders (MODO %d) ===\n", MODO);
-	printk("encoders: ENC_ESQ=PTD6 (J2-17), ENC_DIR=PTD7 (J2-19), 3V3 e GND\n");
+	printk("encoders: ENC_ESQ=PTD7, ENC_DIR=PTD6, 3V3 e GND\n");
 	printk("motores : ENA=PTD2 IN1=PTD0 IN2=PTD5 | ENB=PTD3 IN3=PTE0 IN4=PTE1\n");
 	printk("alvo %d marcas x %d bordas = %d pulsos por volta da roda\n",
 	       ODO_ABERTURAS_DISCO, ODO_BORDAS_POR_ABERT, ODO_PULSOS_POR_VOLTA);
