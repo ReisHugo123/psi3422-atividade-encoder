@@ -44,8 +44,8 @@
  * carrinho puxa para um lado andando reto. */
 #define INVERTE_ESQ   1
 #define INVERTE_DIR   0
-#define TRIM_ESQ      100
-#define TRIM_DIR      94
+#define TRIM_ESQ      94
+#define TRIM_DIR      100
 
 static void pino_saida(PORT_Type *port, GPIO_Type *gpio, uint8_t pin)
 {
