@@ -42,7 +42,7 @@
 /* Ajustes de bancada, para nao ter que mexer na fiacao: INVERTE_x = 1 se aquela
  * roda gira ao contrario, TRIM_x < 100 para segurar o lado mais rapido quando o
  * carrinho puxa para um lado andando reto. */
-#define INVERTE_ESQ   0
+#define INVERTE_ESQ   1
 #define INVERTE_DIR   0
 #define TRIM_ESQ      100
 #define TRIM_DIR      100
