@@ -23,7 +23,7 @@
 #define ODO_ABERTURAS_DISCO     8
 #define ODO_BORDAS_POR_ABERT    2
 #define ODO_PULSOS_POR_VOLTA   (ODO_ABERTURAS_DISCO * ODO_BORDAS_POR_ABERT)
-#define ODO_DIAM_RODA_MM       63
+#define ODO_DIAM_RODA_MM       70
 #define ODO_ENTRE_RODAS_MM     170
 
 /* Os dois numeros medidos. Trocar estes dois E a calibracao.
@@ -44,8 +44,8 @@
  * e isso passou batido. Voltar para a marca de partida na re NAO detecta escala
  * errada, porque o erro e simetrico na ida e na volta. O unico teste que
  * detecta e comandar 1000 mm e medir se andou 1000 mm. */
-#define ODO_PULSOS_POR_M       81
-#define ODO_PULSOS_90          10
+#define ODO_PULSOS_POR_M       65
+#define ODO_PULSOS_90           8
 
 /* Escorregada depois do freio. Comeca em 0 porque o firmware mede a propria
  * escorregada e imprime; chute aqui esconde o efeito. */
