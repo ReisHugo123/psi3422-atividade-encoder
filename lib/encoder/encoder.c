@@ -25,9 +25,18 @@
 
 #define IRQC_DUAS_BORDAS  0xBu   /* 0x9 subida, 0xA descida, 0xB as duas */
 
-/* 300 us fica 7x abaixo do menor intervalo legitimo entre bordas na rotacao
- * maxima. O KL25Z nao tem filtro digital de pino, entao o filtro e aqui. */
-#define ENC_LOCKOUT_US   300u
+/* Janela de bloqueio do repique do comparador. O KL25Z nao tem filtro digital de
+ * pino, entao o filtro e aqui.
+ *
+ * Subiu de 300 us para 3 ms em 21/09. Motivo: o contador de descarte mostrou 452
+ * e 524 bordas rejeitadas contra apenas 65 aceitas, no ar e no chao, o que e o
+ * comparador repicando a cada transicao. Com 300 us o repique mais longo que
+ * isso passava como pulso bom e a contagem ficava instavel entre corridas.
+ *
+ * 3 ms e seguro por larga margem: na velocidade medida o intervalo legitimo
+ * entre duas bordas e de 132 ms, 44 vezes maior, e mesmo com a roda patinando
+ * solta a 3 voltas por segundo ainda sobra 7 vezes de folga. */
+#define ENC_LOCKOUT_US  3000u
 
 static const uint8_t pino[2] = { ENC_ESQ_PIN, ENC_DIR_PIN };
 
