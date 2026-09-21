@@ -23,14 +23,16 @@
 #define ODO_ABERTURAS_DISCO     8
 #define ODO_BORDAS_POR_ABERT    2
 #define ODO_PULSOS_POR_VOLTA   (ODO_ABERTURAS_DISCO * ODO_BORDAS_POR_ABERT)
-#define ODO_DIAM_RODA_MM       72
+#define ODO_DIAM_RODA_MM       63
 #define ODO_ENTRE_RODAS_MM     170
 
 /* Os dois numeros medidos. Trocar estes dois E a calibracao.
  *
- * ATENCAO: os valores abaixo sao ESTIMATIVA para o alvo novo, 8 marcas
- * impressas por roda e o mesmo numero nas duas. NAO valem antes de medir no
- * MODO 2 e no MODO 3.
+ * POR_M MEDIDO 21/09 com disco impresso de 8 marcas por roda: 142 pulsos
+ * comandados deram 1750 mm, entao 81 pulsos por metro, ou 12,35 mm por
+ * pulso. Bate com o modelo fisico (16 bordas por volta numa roda de 63 mm),
+ * e e essa segunda conferencia que faltava na calibracao anterior.
+ * PULSOS_90 ainda e derivado, confirmar no MODO 5.
  *
  * A estimativa sai da calibracao anterior: 62 bordas por metro com 14 bordas
  * por volta dao 226 mm de circunferencia de pneu, e o MODO 5 denunciou 170 mm
@@ -42,8 +44,8 @@
  * e isso passou batido. Voltar para a marca de partida na re NAO detecta escala
  * errada, porque o erro e simetrico na ida e na volta. O unico teste que
  * detecta e comandar 1000 mm e medir se andou 1000 mm. */
-#define ODO_PULSOS_POR_M       71
-#define ODO_PULSOS_90           9
+#define ODO_PULSOS_POR_M       81
+#define ODO_PULSOS_90          10
 
 /* Escorregada depois do freio. Comeca em 0 porque o firmware mede a propria
  * escorregada e imprime; chute aqui esconde o efeito. */
